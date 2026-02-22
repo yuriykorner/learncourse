@@ -212,7 +212,8 @@ class _CoursesScreenState extends State<CoursesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start, // ✅ ПО верху
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // ✅ ВЫРАВНИВАНИЕ ПО ВЕРХУ
                   children: [
                     // ✅ КАРТИНКА КУРСА 100x100
                     ClipRRect(
@@ -255,22 +256,26 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize:
+                            MainAxisSize.min, // ✅ УБРАТЬ ЛИШНИЕ ОТСТУПЫ
                         children: [
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment
-                                .center, // ✅ ПО ЦЕНТРУ ПЕРВОЙ СТРОКИ
+                            mainAxisSize:
+                                MainAxisSize.min, // ✅ УБРАТЬ ЛИШНИЕ ОТСТУПЫ
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start, // ✅ ПО ВЕРХУ
                             children: [
                               Expanded(
                                 child: Text(
                                   title,
-                                  // ✅ ИЗМЕНЕНО: УБРАЛ height: 1.3 ДЛЯ ВЫРАВНИВАНИЯ
+                                  // ✅ ИЗМЕНЕНО: ЦВЕТ И РАЗМЕР НАЗВАНИЯ
                                   style: TextStyle(
                                     fontSize: 18, // ✅ УВЕЛИЧЕНО С 16 ДО 18
                                     fontWeight: FontWeight.w600,
                                     color: isDark
                                         ? Colors.white
                                         : Colors.black87, // ✅ ЦВЕТ ПОД ТЕМУ
-                                    // height: 1.3,  ❌ УБРАЛ - Мешает выравниванию
+                                    height: 1.3,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
