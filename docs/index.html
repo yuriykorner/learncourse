@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="/learncourse/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="LearnCourse Application">
+  <meta name="theme-color" content="#1976D2">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="LearnCourse">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>LearnCourse</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- ✅ РЕШЕНИЕ ДЛЯ РФ: ОТКЛЮЧЕНИЕ CANVASKIT -->
+  <script>
+    // Устанавливаем рендерер ДО загрузки любого скрипта флаттера
+    window.flutterWebRenderer = "html";
+
+    window.addEventListener('flutter-web-bootstrap', () => {
+      // Регистрируем обработчик для HTML контента
+      window._htmlContentRenderers = {};
+      });
+    
+    // Перехватчик ошибок загрузки скриптов, чтобы белый экран не зависал
+    window.addEventListener('error', function(e) {
+      if (e.target && e.target.src && e.target.src.includes('canvaskit')) {
+        console.warn("CanvasKit blocked/failover to HTML renderer");
+      }
+    }, true);
+  </script>
+
+  <!-- Подключаем скрипт загрузки -->
+  <script src="flutter_bootstrap.js" async></script>
+</head>
+<body>
+  <!-- Приложение загрузится сюда -->
+</body>
+</html>
