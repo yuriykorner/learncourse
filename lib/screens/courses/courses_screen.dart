@@ -185,22 +185,22 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
     // ✅ КОНТЕЙНЕР С ТЕНЬЮ ВОКРУГ КАРТОЧКИ
     return Container(
-      margin: const EdgeInsets.only(bottom: 20), // ✅ МЕСТО ДЛЯ ТЕНИ
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black54 : Colors.black26, // ✅ ЦВЕТ ТЕНИ
-            blurRadius: 8, // ✅ РАЗМЫТИЕ
-            offset: const Offset(0, 4), // ✅ СМЕЩЕНИЕ ВНИЗ
-            spreadRadius: 1, // ✅ РАСПРОСТРАНЕНИЕ
+            color: isDark ? Colors.black54 : Colors.black26,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+            spreadRadius: 1,
           ),
         ],
       ),
       child: Card(
-        margin: EdgeInsets.zero, // ✅ УБРАТЬ МАРГИН
-        elevation: 0, // ✅ УБРАТЬ СТАНДАРТНУЮ ТЕНЬ
-        shadowColor: Colors.transparent, // ✅ УБРАТЬ СТАНДАРТНУЮ ТЕНЬ
+        margin: EdgeInsets.zero,
+        elevation: 0,
+        shadowColor: Colors.transparent,
         color: isDark ? const Color(0xFF2C2C2C) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
@@ -212,8 +212,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // ✅ ВЫРАВНИВАНИЕ ПО ВЕРХУ
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ✅ КАРТИНКА КУРСА 100x100
                     ClipRRect(
@@ -256,50 +255,53 @@ class _CoursesScreenState extends State<CoursesScreen> {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize:
-                            MainAxisSize.min, // ✅ УБРАТЬ ЛИШНИЕ ОТСТУПЫ
+                        mainAxisSize: MainAxisSize.min,
                         children: [
+                          // ✅ ROW С НАЗВАНИЕМ И ИКОНКАМИ - ВСЁ ПО ВЕРХУ
                           Row(
-                            mainAxisSize:
-                                MainAxisSize.min, // ✅ УБРАТЬ ЛИШНИЕ ОТСТУПЫ
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start, // ✅ ПО ВЕРХУ
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
                                 child: Text(
                                   title,
-                                  // ✅ ИЗМЕНЕНО: ЦВЕТ И РАЗМЕР НАЗВАНИЯ
                                   style: TextStyle(
-                                    fontSize: 18, // ✅ УВЕЛИЧЕНО С 16 ДО 18
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark
-                                        ? Colors.white
-                                        : Colors.black87, // ✅ ЦВЕТ ПОД ТЕМУ
+                                    color:
+                                        isDark ? Colors.white : Colors.black87,
                                     height: 1.3,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (isAdmin) ...[
-                                IconButton(
-                                  icon: const Icon(Icons.edit,
-                                      size: 20, color: Colors.grey),
-                                  onPressed: () =>
-                                      _showEditCourseDialog(context, course),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
+                              // ✅ ИКОНКИ АДМИНА - ВЫРОВНЕНЫ ПО ВЕРХУ
+                              if (isAdmin)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          size: 20, color: Colors.grey),
+                                      onPressed: () => _showEditCourseDialog(
+                                          context, course),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          size: 20, color: Colors.red),
+                                      onPressed: () =>
+                                          _deleteCourse(context, course),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      visualDensity: VisualDensity.compact,
+                                      tooltip: 'Удалить курс',
+                                    ),
+                                  ],
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      size: 20, color: Colors.red),
-                                  onPressed: () =>
-                                      _deleteCourse(context, course),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  tooltip: 'Удалить курс',
-                                ),
-                              ],
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -442,24 +444,17 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
     }
   }
 
-  // ✅ ИСПРАВЛЕНА ЗАГРУЗКА - СНАЧАЛА ЗАГРУЖАЕМ, ПОТОМ СОХРАНЯЕМ URL
   Future<void> _uploadImage() async {
     if (_imageBytes == null || !mounted) return;
     setState(() => _isProcessing = true);
     try {
       final fileName = 'course_${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      // ✅ ЗАГРУЖАЕМ В STORAGE
       await supabase.storage
           .from('lesson_images')
           .uploadBinary(fileName, _imageBytes!);
-
-      // ✅ ПОЛУЧАЕМ PUBLIC URL
       final publicUrl =
           supabase.storage.from('lesson_images').getPublicUrl(fileName);
-
       print('✅ Image uploaded: $publicUrl');
-
       if (mounted)
         setState(() {
           _imageUrl = publicUrl;
@@ -474,7 +469,6 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
     if (mounted) setState(() => _isProcessing = false);
   }
 
-  // ✅ СОЗДАНИЕ КУРСА - ТОЛЬКО ПОСЛЕ ЗАГРУЗКИ КАРТИНКИ
   Future<void> _create() async {
     if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context)
@@ -482,7 +476,6 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
       return;
     }
 
-    // ✅ ЕСЛИ КАРТИНКА ВЫБРАНА НО НЕ ЗАГРУЖЕНА - ЗАГРУЖАЕМ СНАЧАЛА
     if (_imageBytes != null && _imageUrl == null) {
       await _uploadImage();
     }
@@ -498,7 +491,7 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
       await supabase.from('courses').insert({
         'title': _titleController.text,
         'description': _descController.text,
-        'image_url': _imageUrl, // ✅ СОХРАНЯЕМ URL
+        'image_url': _imageUrl,
         'creator_id': user?.id,
         'created_at': DateTime.now().toIso8601String(),
       });
@@ -636,7 +629,6 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
         TextEditingController(text: widget.course['title']?.toString() ?? '');
     _descController = TextEditingController(
         text: widget.course['description']?.toString() ?? '');
-    // ✅ ЧТЕНИЕ image_url
     _imageUrl = widget.course['image_url'] != null
         ? widget.course['image_url'].toString()
         : null;
@@ -700,7 +692,6 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
       return;
     }
 
-    // ✅ ЕСЛИ КАРТИНКА ВЫБРАНА НО НЕ ЗАГРУЖЕНА - ЗАГРУЖАЕМ СНАЧАЛА
     if (_imageBytes != null && _imageUrl == null) {
       await _uploadImage();
     }
