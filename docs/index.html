@@ -29,8 +29,8 @@
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       
       // ✅ ЦВЕТА ПОД ТЕМУ
-      const themeColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Синий
-      const backgroundColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
+      const themeColor = isDark ? '#121212' : '#121212';  // Тёмный/Синий
+      const backgroundColor = isDark ? '#121212' : '#121212';  // Тёмный/Белый
       
       // Обновляем meta теги
       document.getElementById('theme-color-meta').setAttribute('content', themeColor);
