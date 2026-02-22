@@ -13,7 +13,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" id="apple-status-bar">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="LearnCourse">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -28,13 +27,15 @@
     function updateThemeColor() {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       
-      // ✅ ЦВЕТА ПОД ТЕМУ
-      const themeColor = isDark ? '#121212' : '#121212';  // Тёмный/Синий
-      const backgroundColor = isDark ? '#121212' : '#121212';  // Тёмный/Белый
+      // ✅ ЦВЕТА ПОД ТЕМУ (РАЗНЫЕ ДЛЯ СВЕТЛОЙ И ТЁМНОЙ!)
+      const themeColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
+      const backgroundColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
+      const statusBarStyle = isDark ? 'black' : 'black-translucent';  // Для iOS
       
       // Обновляем meta теги
       document.getElementById('theme-color-meta').setAttribute('content', themeColor);
-      document.getElementById('apple-status-bar').setAttribute('content', themeColor);
+      document.getElementById('nav-color-meta').setAttribute('content', themeColor);
+      document.getElementById('apple-status-bar').setAttribute('content', statusBarStyle);
       
       // Обновляем фон body
       document.body.style.backgroundColor = backgroundColor;
