@@ -3,7 +3,7 @@
     "short_name": "LearnCourse",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#121212",
+    "background_color": "#ffffff",
     "theme_color": "#ffffff",
     "description": "LearnCourse Application",
     "orientation": "portrait-primary",
