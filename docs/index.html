@@ -7,7 +7,7 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="LearnCourse Application">
   
-  <!-- ✅ ДИНАМИЧЕСКИЙ ЦВЕТ (будет изменён JS) -->
+  <!-- ✅ ЦВЕТА БУДУТ УСТАНОВЛЕНЫ СИНХРОННО НИЖЕ -->
   <meta name="theme-color" content="#121212" id="theme-color-meta">
   <meta name="msapplication-navbutton-color" content="#121212" id="nav-color-meta">
   <meta name="apple-mobile-web-app-status-bar-style" content="black" id="apple-status-bar">
@@ -21,31 +21,36 @@
   <title>LearnCourse</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- ✅ СКРИПТ ДЛЯ СМЕНЫ ЦВЕТА ПОД ТЕМУ -->
+  <!-- ✅ СИНХРОННАЯ ПРОВЕРКА ТЕМЫ (ДО ЗАГРУЗКИ СТРАНИЦЫ!) -->
   <script>
-    // Функция обновления цвета под тему
-    function updateThemeColor() {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    (function() {
+      // ✅ ЧИТАЕМ ТЕМУ ИЗ LOCALSTORAGE (СОХРАНЯЕТСЯ ИЗ FLUTTER)
+      var savedTheme = localStorage.getItem('theme_mode');
       
-      // ✅ ЦВЕТА ПОД ТЕМУ (РАЗНЫЕ ДЛЯ СВЕТЛОЙ И ТЁМНОЙ!)
-      const themeColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
-      const backgroundColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
-      const statusBarStyle = isDark ? 'black' : 'black-translucent';  // Для iOS
+      var isDark = false;
       
-      // Обновляем meta теги
+      // ✅ ОПРЕДЕЛЯЕМ ТЕМУ
+      if (savedTheme === 'dark') {
+        isDark = true;  // Принудительно тёмная
+      } else if (savedTheme === 'light') {
+        isDark = false;  // Принудительно светлая
+      } else {
+        // Системная тема
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      
+      // ✅ ЦВЕТА ПОД ТЕМУ
+      var themeColor = isDark ? '#121212' : '#ffffff';
+      var statusBarStyle = isDark ? 'black' : 'black-translucent';
+      
+      // ✅ УСТАНАВЛИВАЕМ ЦВЕТА СРАЗУ (СИНХРОННО!)
       document.getElementById('theme-color-meta').setAttribute('content', themeColor);
       document.getElementById('nav-color-meta').setAttribute('content', themeColor);
       document.getElementById('apple-status-bar').setAttribute('content', statusBarStyle);
       
-      // Обновляем фон body
-      document.body.style.backgroundColor = backgroundColor;
-    }
-    
-    // Вызываем при загрузке
-    updateThemeColor();
-    
-    // Слушаем изменения темы
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
+      // ✅ ФОН BODY
+      document.body.style.backgroundColor = themeColor;
+    })();
   </script>
 
   <!-- ✅ РЕШЕНИЕ ДЛЯ РФ: ОТКЛЮЧЕНИЕ CANVASKIT -->

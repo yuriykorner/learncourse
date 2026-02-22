@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web/web.dart' as web; // ✅ ДЛЯ WEB
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
@@ -23,10 +24,24 @@ class ThemeProvider extends ChangeNotifier {
       } else {
         _themeMode = ThemeMode.system;
       }
+
+      // ✅ СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ WEB
+      _saveToLocalStorage(themeString ?? 'system');
+
       notifyListeners();
     } catch (e) {
       _themeMode = ThemeMode.system;
+      _saveToLocalStorage('system');
       notifyListeners();
+    }
+  }
+
+  // ✅ СОХРАНЕНИЕ В LOCALSTORAGE (ДЛЯ WEB)
+  void _saveToLocalStorage(String theme) {
+    try {
+      web.window.localStorage.setItem('theme_mode', theme);
+    } catch (e) {
+      // Игнорируем ошибки на мобильных
     }
   }
 
@@ -35,13 +50,19 @@ class ThemeProvider extends ChangeNotifier {
       _themeMode = mode;
       final prefs = await SharedPreferences.getInstance();
 
+      String themeString;
       if (mode == ThemeMode.dark) {
-        await prefs.setString('theme_mode', 'dark');
+        themeString = 'dark';
       } else if (mode == ThemeMode.light) {
-        await prefs.setString('theme_mode', 'light');
+        themeString = 'light';
       } else {
-        await prefs.setString('theme_mode', 'system');
+        themeString = 'system';
       }
+
+      await prefs.setString('theme_mode', themeString);
+
+      // ✅ СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ WEB
+      _saveToLocalStorage(themeString);
 
       notifyListeners();
     } catch (e) {
