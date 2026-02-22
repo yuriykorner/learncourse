@@ -6,7 +6,10 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="LearnCourse Application">
-  <meta name="theme-color" content="#1976D2">
+  
+  <!-- ✅ ДИНАМИЧЕСКИЙ ЦВЕТ (будет изменён JS) -->
+  <meta name="theme-color" content="#121212" id="theme-color-meta">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" id="apple-status-bar">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -18,17 +21,39 @@
   <title>LearnCourse</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- ✅ СКРИПТ ДЛЯ СМЕНЫ ЦВЕТА ПОД ТЕМУ -->
+  <script>
+    // Функция обновления цвета под тему
+    function updateThemeColor() {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      // ✅ ЦВЕТА ПОД ТЕМУ
+      const themeColor = isDark ? '#121212' : '#121212';  // Тёмный/Синий
+      const backgroundColor = isDark ? '#121212' : '#ffffff';  // Тёмный/Белый
+      
+      // Обновляем meta теги
+      document.getElementById('theme-color-meta').setAttribute('content', themeColor);
+      document.getElementById('apple-status-bar').setAttribute('content', themeColor);
+      
+      // Обновляем фон body
+      document.body.style.backgroundColor = backgroundColor;
+    }
+    
+    // Вызываем при загрузке
+    updateThemeColor();
+    
+    // Слушаем изменения темы
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
+  </script>
+
   <!-- ✅ РЕШЕНИЕ ДЛЯ РФ: ОТКЛЮЧЕНИЕ CANVASKIT -->
   <script>
-    // Устанавливаем рендерер ДО загрузки любого скрипта флаттера
     window.flutterWebRenderer = "html";
 
     window.addEventListener('flutter-web-bootstrap', () => {
-      // Регистрируем обработчик для HTML контента
       window._htmlContentRenderers = {};
-      });
+    });
     
-    // Перехватчик ошибок загрузки скриптов, чтобы белый экран не зависал
     window.addEventListener('error', function(e) {
       if (e.target && e.target.src && e.target.src.includes('canvaskit')) {
         console.warn("CanvasKit blocked/failover to HTML renderer");
@@ -36,7 +61,6 @@
     }, true);
   </script>
 
-  <!-- Подключаем скрипт загрузки -->
   <script src="flutter_bootstrap.js" async></script>
 </head>
 <body>
