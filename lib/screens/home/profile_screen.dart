@@ -110,55 +110,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               child: Column(
                 children: [
-                  // ✅ ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ С ЗАМЕТНОЙ ВЫБРАННОЙ ИКОНКОЙ
-                  ListTile(
-                    leading: Icon(Icons.brightness_6,
-                        color: isDark ? Colors.white : const Color(0xFF1976D2)),
-                    title: Text(
-                      'Тема оформления',
-                      style: TextStyle(
-                          color: isDark ? Colors.white : Colors.black),
-                    ),
-                    trailing: SegmentedButton<ThemeMode>(
-                      segments: [
-                        ButtonSegment(
-                          value: ThemeMode.light,
-                          icon: Icon(
-                            Icons.light_mode,
-                            color: iconColor,
-                            size: 16,
-                          ),
-                          tooltip: 'Светлая',
+                  // ✅ ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ СНИЗУ ЗАГОЛОВКА
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Заголовок с иконкой
+                        Row(
+                          children: [
+                            Icon(Icons.brightness_6,
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF1976D2)),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Тема оформления',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white : Colors.black),
+                            ),
+                          ],
                         ),
-                        ButtonSegment(
-                          value: ThemeMode.system,
-                          icon: Icon(
-                            Icons.brightness_auto,
-                            color: iconColor,
-                            size: 16,
+                        const SizedBox(height: 12),
+                        // ✅ ПЕРЕКЛЮЧАТЕЛЬ СНИЗУ
+                        SegmentedButton<ThemeMode>(
+                          segments: [
+                            ButtonSegment(
+                              value: ThemeMode.light,
+                              icon: Icon(
+                                Icons.light_mode,
+                                color: iconColor,
+                                size: 16,
+                              ),
+                              tooltip: 'Светлая',
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.system,
+                              icon: Icon(
+                                Icons.brightness_auto,
+                                color: iconColor,
+                                size: 16,
+                              ),
+                              tooltip: 'Системная',
+                            ),
+                            ButtonSegment(
+                              value: ThemeMode.dark,
+                              icon: Icon(
+                                Icons.dark_mode,
+                                color: iconColor,
+                                size: 16,
+                              ),
+                              tooltip: 'Тёмная',
+                            ),
+                          ],
+                          selected: {themeProvider.themeMode},
+                          style: SegmentedButton.styleFrom(
+                            selectedBackgroundColor: selectedBackgroundColor,
+                            selectedForegroundColor: selectedColor,
+                            foregroundColor: iconColor,
+                            backgroundColor: Colors.transparent,
                           ),
-                          tooltip: 'Системная',
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.dark,
-                          icon: Icon(
-                            Icons.dark_mode,
-                            color: iconColor,
-                            size: 16,
-                          ),
-                          tooltip: 'Тёмная',
+                          onSelectionChanged: (Set<ThemeMode> newSelection) {
+                            themeProvider.setThemeMode(newSelection.first);
+                          },
                         ),
                       ],
-                      selected: {themeProvider.themeMode},
-                      style: SegmentedButton.styleFrom(
-                        selectedBackgroundColor: selectedBackgroundColor,
-                        selectedForegroundColor: selectedColor,
-                        foregroundColor: iconColor,
-                        backgroundColor: Colors.transparent,
-                      ),
-                      onSelectionChanged: (Set<ThemeMode> newSelection) {
-                        themeProvider.setThemeMode(newSelection.first);
-                      },
                     ),
                   ),
                   const Divider(height: 1, color: Colors.grey),

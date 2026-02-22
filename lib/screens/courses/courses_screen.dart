@@ -212,7 +212,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start, // ✅ ПО верху
                   children: [
                     // ✅ КАРТИНКА КУРСА 100x100
                     ClipRRect(
@@ -257,18 +257,20 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment
+                                .center, // ✅ ПО ЦЕНТРУ ПЕРВОЙ СТРОКИ
                             children: [
                               Expanded(
                                 child: Text(
                                   title,
-                                  // ✅ ИЗМЕНЕНО: ЦВЕТ И РАЗМЕР НАЗВАНИЯ
+                                  // ✅ ИЗМЕНЕНО: УБРАЛ height: 1.3 ДЛЯ ВЫРАВНИВАНИЯ
                                   style: TextStyle(
                                     fontSize: 18, // ✅ УВЕЛИЧЕНО С 16 ДО 18
                                     fontWeight: FontWeight.w600,
                                     color: isDark
                                         ? Colors.white
                                         : Colors.black87, // ✅ ЦВЕТ ПОД ТЕМУ
-                                    height: 1.3,
+                                    // height: 1.3,  ❌ УБРАЛ - Мешает выравниванию
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
