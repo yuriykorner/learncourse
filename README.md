@@ -1,4 +1,4 @@
-# learncourse_fixed
+# Learncourse
 
 A new Flutter project.
 
