@@ -1,10 +1,10 @@
 {
-    "name": "Learncourse",
-    "short_name": "Learncourse",
+    "name": "LearnCourse",
+    "short_name": "LearnCourse",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#121212",
-    "theme_color": "#121212",
+    "theme_color": "#ffffff",
     "description": "LearnCourse Application",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
