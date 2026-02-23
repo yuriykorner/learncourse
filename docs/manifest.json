@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#1976D2",
+    "theme_color": "#121212",
     "description": "LearnCourse Application",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

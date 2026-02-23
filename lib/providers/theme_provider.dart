@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js' as js;
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
+
   ThemeMode get themeMode => _themeMode;
   bool get isDarkMode => _themeMode == ThemeMode.dark;
 
@@ -40,14 +38,6 @@ class ThemeProvider extends ChangeNotifier {
     }
 
     await prefs.setString('theme_mode', themeString);
-
-    if (kIsWeb) {
-      bool isDark = themeString == 'dark';
-      String color = isDark ? '#121212' : '#ffffff';
-      js.context.callMethod('updateThemeColor', [color]);
-      js.context['localStorage'].setItem('theme_mode', themeString);
-    }
-
     notifyListeners();
   }
 
