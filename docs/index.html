@@ -1,40 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="$FLUTTER_BASE_HREF">
+  <base href="/learncourse/">
+
   <meta charset="UTF-8">
-  <meta name="theme-color" content="#ffffff" id="theme-color">
-  <meta name="msapplication-navbutton-color" content="#ffffff" id="nav-color">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="LearnCourse Application">
+  
+  <!-- ✅ ЦВЕТА БУДУТ УСТАНОВЛЕНЫ СИНХРОННО НИЖЕ -->
+  <meta name="theme-color" content="#121212" id="theme-color-meta">
+  <meta name="msapplication-navbutton-color" content="#121212" id="nav-color-meta">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" id="apple-status-bar">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-title" content="LearnCourse">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
   <title>LearnCourse</title>
-  
+  <link rel="manifest" href="manifest.json">
+
+  <!-- ✅ СИНХРОННАЯ ПРОВЕРКА ТЕМЫ (ДО ЗАГРУЗКИ СТРАНИЦЫ!) -->
   <script>
-    // ✅ ПРИ ЗАГРУЗКЕ
     (function() {
-      var theme = localStorage.getItem('theme_mode');
-      var isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      setColor(isDark ? '#121212' : '#ffffff');
-    })();
-    
-    // ✅ ФУНКЦИЯ УСТАНОВКИ ЦВЕТА
-    function setColor(color) {
-      document.getElementById('theme-color').setAttribute('content', color);
-      document.getElementById('nav-color').setAttribute('content', color);
-      document.body.style.backgroundColor = color;
-    }
-    
-    // ✅ СЛУШАЕМ ИЗМЕНЕНИЯ LOCALSTORAGE (REALTIME!)
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'theme_mode') {
-        var isDark = e.newValue === 'dark' || (e.newValue !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        setColor(isDark ? '#121212' : '#ffffff');
+      // ✅ ЧИТАЕМ ТЕМУ ИЗ LOCALSTORAGE (СОХРАНЯЕТСЯ ИЗ FLUTTER)
+      var savedTheme = localStorage.getItem('theme_mode');
+      
+      var isDark = false;
+      
+      // ✅ ОПРЕДЕЛЯЕМ ТЕМУ
+      if (savedTheme === 'dark') {
+        isDark = true;  // Принудительно тёмная
+      } else if (savedTheme === 'light') {
+        isDark = false;  // Принудительно светлая
+      } else {
+        // Системная тема
+        isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
-    });
+      
+      // ✅ ЦВЕТА ПОД ТЕМУ
+      var themeColor = isDark ? '#121212' : '#ffffff';
+      var statusBarStyle = isDark ? 'black' : 'black-translucent';
+      
+      // ✅ УСТАНАВЛИВАЕМ ЦВЕТА СРАЗУ (СИНХРОННО!)
+      document.getElementById('theme-color-meta').setAttribute('content', themeColor);
+      document.getElementById('nav-color-meta').setAttribute('content', themeColor);
+      document.getElementById('apple-status-bar').setAttribute('content', statusBarStyle);
+      
+      // ✅ ФОН BODY
+      document.body.style.backgroundColor = themeColor;
+    })();
   </script>
-  
+
+  <!-- ✅ РЕШЕНИЕ ДЛЯ РФ: ОТКЛЮЧЕНИЕ CANVASKIT -->
+  <script>
+    window.flutterWebRenderer = "html";
+
+    window.addEventListener('flutter-web-bootstrap', () => {
+      window._htmlContentRenderers = {};
+    });
+    
+    window.addEventListener('error', function(e) {
+      if (e.target && e.target.src && e.target.src.includes('canvaskit')) {
+        console.warn("CanvasKit blocked/failover to HTML renderer");
+      }
+    }, true);
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </head>
 <body>
+  <!-- Приложение загрузится сюда -->
 </body>
 </html>
