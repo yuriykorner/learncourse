@@ -3,34 +3,46 @@
 <head>
   <base href="/learncourse/">
   <meta charset="UTF-8">
-  <meta name="theme-color" content="#ffffff" id="theme-color">
-  <meta name="msapplication-navbutton-color" content="#ffffff" id="nav-color">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="manifest" href="manifest.json">
-  <title>LearnCourse</title>
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="LearnCourse Application">
   
-  <!-- ✅ СИНХРОННАЯ УСТАНОВКА ЦВЕТА -->
+  <!-- ✅ ЦВЕТ ПО УМОЛЧАНИЮ (СВЕТЛЫЙ) -->
+  <meta name="theme-color" content="#ffffff">
+  <meta name="msapplication-navbutton-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LearnCourse">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>LearnCourse</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- ✅ СИНХРОННАЯ УСТАНОВКА ЦВЕТА (ДО ЗАГРУЗКИ СТРАНИЦЫ!) -->
   <script>
     (function() {
-      var theme = localStorage.getItem('theme_mode');
-      var isDark = theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      var color = isDark ? '#121212' : '#ffffff';
-      
-      document.getElementById('theme-color').setAttribute('content', color);
-      document.getElementById('nav-color').setAttribute('content', color);
-      document.body.style.backgroundColor = color;
+      try {
+        var theme = localStorage.getItem('theme_mode');
+        var isDark = theme === 'dark';
+        var color = isDark ? '#121212' : '#ffffff';
+        
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
+        document.querySelector('meta[name="msapplication-navbutton-color"]').setAttribute('content', color);
+        document.body.style.backgroundColor = color;
+      } catch (e) {}
     })();
   </script>
-  
+
   <!-- ✅ REALTIME ОБНОВЛЕНИЕ -->
   <script>
     window.updateThemeColor = function(color) {
-      document.getElementById('theme-color').setAttribute('content', color);
-      document.getElementById('nav-color').setAttribute('content', color);
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
+      document.querySelector('meta[name="msapplication-navbutton-color"]').setAttribute('content', color);
       document.body.style.backgroundColor = color;
     };
   </script>
-  
+
   <script src="flutter_bootstrap.js" async></script>
 </head>
 <body>
