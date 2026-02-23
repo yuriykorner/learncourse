@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/theme_helper.dart'
-    if (dart.library.js) '../utils/theme_helper_web.dart' as theme_helper;
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+// ✅ ИМПОРТ JS ТОЛЬКО ДЛЯ WEB
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js' as js;
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
@@ -41,23 +44,39 @@ class ThemeProvider extends ChangeNotifier {
 
     await prefs.setString('theme_mode', themeString);
 
-    // ✅ ОБНОВЛЯЕМ WEB
-    theme_helper.saveThemeToLocalStorage(themeString);
-
-    bool isDark;
-    if (themeString == 'dark') {
-      isDark = true;
-    } else if (themeString == 'light') {
-      isDark = false;
-    } else {
-      isDark = WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-          Brightness.dark;
+    // ✅ ДЛЯ WEB - обновляем цвет
+    if (kIsWeb) {
+      _updateWebTheme(themeString);
     }
 
-    String color = isDark ? '#121212' : '#ffffff';
-    theme_helper.updateThemeColor(color);
-
     notifyListeners();
+  }
+
+  // ✅ ОБНОВЛЕНИЕ ЦВЕТА (WEB)
+  void _updateWebTheme(String theme) {
+    try {
+      // Вычисляем цвет
+      bool isDark;
+      if (theme == 'dark') {
+        isDark = true;
+      } else if (theme == 'light') {
+        isDark = false;
+      } else {
+        isDark =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+                Brightness.dark;
+      }
+
+      String color = isDark ? '#121212' : '#ffffff';
+
+      // ✅ ВЫЗЫВАЕМ JS ФУНКЦИЮ
+      js.context.callMethod('updateThemeColor', [color]);
+
+      // ✅ СОХРАНЯЕМ В LOCALSTORAGE
+      js.context['localStorage'].setItem('theme_mode', theme);
+    } catch (e) {
+      print('Web theme error: $e');
+    }
   }
 
   Future<void> toggleTheme() async {
