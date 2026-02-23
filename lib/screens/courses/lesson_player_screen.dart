@@ -359,21 +359,16 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (_lessons[_currentIndex]['lesson_type'] ==
-                                    'quiz')
-                                  _buildQuizContent(isDark)
-                                else
-                                  _buildInfoContent(isDark),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_lessons[_currentIndex]['lesson_type'] ==
+                                  'quiz')
+                                _buildQuizContent(isDark)
+                              else
+                                _buildInfoContent(isDark),
+                            ],
                           ),
-                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -414,8 +409,11 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     final content = _lessons[_currentIndex]['content'] ?? '';
 
     if (content.isEmpty || content.trim().isEmpty) {
-      return Text('Содержимое урока пустое',
-          style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey));
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text('Содержимое урока пустое',
+            style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey)),
+      );
     }
 
     return Container(
@@ -423,9 +421,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border:
-            Border.all(color: isDark ? Colors.grey[800]! : Colors.grey[300]!),
       ),
       child: HtmlWidget(
         content,
@@ -643,45 +638,45 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
 
   Widget _buildQuizQuestionsWidget(bool isDark) {
     if (_quizQuestions.isEmpty) {
-      return Text('Вопросы не найдены',
-          style: TextStyle(color: isDark ? Colors.white : Colors.black));
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Text('Вопросы не найдены',
+            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+      );
     }
 
-    return Card(
+    return Container(
       margin: EdgeInsets.zero,
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Тест',
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black)),
-            const SizedBox(height: 16),
-            ..._quizQuestions.asMap().entries.map((entry) {
-              final qIndex = entry.key;
-              final question = entry.value;
-              return _buildQuestionWidget(qIndex, question, isDark);
-            }).toList(),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _userAnswers.length == _quizQuestions.length
-                  ? _submitQuiz
-                  : null,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
-                foregroundColor: isDark ? Colors.black : Colors.white,
-              ),
-              child: Text('Завершить тест',
-                  style:
-                      TextStyle(color: isDark ? Colors.black : Colors.white)),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Тест',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black)),
+          const SizedBox(height: 16),
+          ..._quizQuestions.asMap().entries.map((entry) {
+            final qIndex = entry.key;
+            final question = entry.value;
+            return _buildQuestionWidget(qIndex, question, isDark);
+          }).toList(),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _userAnswers.length == _quizQuestions.length
+                ? _submitQuiz
+                : null,
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 50),
+              backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
+              foregroundColor: isDark ? Colors.black : Colors.white,
             ),
-          ],
-        ),
+            child: Text('Завершить тест',
+                style: TextStyle(color: isDark ? Colors.black : Colors.white)),
+          ),
+        ],
       ),
     );
   }
@@ -752,41 +747,39 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   }
 
   Widget _buildQuestionWidget(int qIndex, QuizQuestion question, bool isDark) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Вопрос ${qIndex + 1}: ${question.text}',
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black),
-            ),
-            const SizedBox(height: 12),
-            ...question.answers.asMap().entries.map((entry) {
-              final aIndex = entry.key;
-              final answer = entry.value;
-              return RadioListTile<int>(
-                title: Text(answer.text,
-                    style:
-                        TextStyle(color: isDark ? Colors.white : Colors.black)),
-                value: aIndex,
-                groupValue: _userAnswers[qIndex],
-                onChanged: (value) {
-                  setState(() {
-                    _userAnswers[qIndex] = value;
-                  });
-                },
-                activeColor: isDark ? Colors.grey[300] : Colors.grey[800],
-              );
-            }).toList(),
-          ],
-        ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Вопрос ${qIndex + 1}: ${question.text}',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black),
+          ),
+          const SizedBox(height: 12),
+          ...question.answers.asMap().entries.map((entry) {
+            final aIndex = entry.key;
+            final answer = entry.value;
+            return RadioListTile<int>(
+              title: Text(answer.text,
+                  style:
+                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              value: aIndex,
+              groupValue: _userAnswers[qIndex],
+              onChanged: (value) {
+                setState(() {
+                  _userAnswers[qIndex] = value;
+                });
+              },
+              activeColor: isDark ? Colors.grey[300] : Colors.grey[800],
+            );
+          }).toList(),
+        ],
       ),
     );
   }
@@ -845,77 +838,67 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   }
 
   Widget _buildQuizPassedWidget(bool isDark) {
-    return Card(
+    return Container(
       margin: EdgeInsets.zero,
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.green, width: 2),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 64),
-            const SizedBox(height: 16),
-            const Text(
-              'Тест пройден',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 64),
+          const SizedBox(height: 16),
+          const Text(
+            'Тест пройден',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Правильных ответов: $_correctAnswers из $_totalQuestions',
-              style: TextStyle(
-                  fontSize: 16, color: isDark ? Colors.white : Colors.green),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Правильных ответов: $_correctAnswers из $_totalQuestions',
+            style: TextStyle(
+                fontSize: 16, color: isDark ? Colors.white : Colors.green),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildQuizResultsWidget(bool isDark) {
-    return Card(
+    return Container(
       margin: EdgeInsets.zero,
       color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const Icon(Icons.cancel, color: Colors.red, size: 64),
-            const SizedBox(height: 16),
-            const Text(
-              'Тест не пройден',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          const Icon(Icons.cancel, color: Colors.red, size: 64),
+          const SizedBox(height: 16),
+          const Text(
+            'Тест не пройден',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Правильных ответов: $_correctAnswers из $_totalQuestions',
-              style: TextStyle(
-                  fontSize: 16, color: isDark ? Colors.white : Colors.black),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Правильных ответов: $_correctAnswers из $_totalQuestions',
+            style: TextStyle(
+                fontSize: 16, color: isDark ? Colors.white : Colors.black),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _retryQuiz,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
+              foregroundColor: isDark ? Colors.black : Colors.white,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _retryQuiz,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
-                foregroundColor: isDark ? Colors.black : Colors.white,
-              ),
-              child: Text('Пройти заново',
-                  style:
-                      TextStyle(color: isDark ? Colors.black : Colors.white)),
-            ),
-          ],
-        ),
+            child: Text('Пройти заново',
+                style: TextStyle(color: isDark ? Colors.black : Colors.white)),
+          ),
+        ],
       ),
     );
   }
