@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/theme_helper.dart'
+    if (dart.library.js) '../utils/theme_helper_web.dart' as theme_helper;
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
@@ -38,6 +40,23 @@ class ThemeProvider extends ChangeNotifier {
     }
 
     await prefs.setString('theme_mode', themeString);
+
+    // ✅ ОБНОВЛЯЕМ WEB
+    theme_helper.saveThemeToLocalStorage(themeString);
+
+    bool isDark;
+    if (themeString == 'dark') {
+      isDark = true;
+    } else if (themeString == 'light') {
+      isDark = false;
+    } else {
+      isDark = WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark;
+    }
+
+    String color = isDark ? '#121212' : '#ffffff';
+    theme_helper.updateThemeColor(color);
+
     notifyListeners();
   }
 
