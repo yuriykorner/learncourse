@@ -32,7 +32,6 @@ class _CreateLessonScreenState extends State<CreateLessonScreen> {
     }
     setState(() => _isUploading = true);
     try {
-      // ✅ ПОЛУЧАЕМ МАКСИМАЛЬНЫЙ order_index + 1
       final res = await supabase
           .from('lessons')
           .select('order_index')

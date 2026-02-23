@@ -36,7 +36,6 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  // ✅ СДЕЛАЛ МЕТОД ПУБЛИЧНЫМ (УБРАЛ _)
   Future<void> loadProfile() async {
     if (_user == null) return;
     try {
@@ -53,7 +52,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // ✅ ПРИВАТНЫЙ МЕТОД ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ
   Future<void> _loadProfile() async {
     if (_user == null) return;
     try {
@@ -112,7 +110,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ ЭТОТ МЕТОД УЖЕ ЕСТЬ - ВСЁ ХОРОШО
   Future<void> updateProfile({String? fullName, String? avatarUrl}) async {
     if (_user == null) return;
 

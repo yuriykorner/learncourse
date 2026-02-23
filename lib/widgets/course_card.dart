@@ -35,11 +35,9 @@ class CourseCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ✅ ВЕРХНЯЯ ЧАСТЬ: КАРТИНКА + ТЕКСТ
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ✅ КВАДРАТНАЯ КАРТИНКА 80x80
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: imageUrl != null && imageUrl.isNotEmpty
@@ -72,7 +70,6 @@ class CourseCard extends StatelessWidget {
                           ),
                   ),
                   const SizedBox(width: 12),
-                  // ✅ ТЕКСТ СПРАВА
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,13 +101,9 @@ class CourseCard extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
-              // ✅ НИЖНЯЯ ЧАСТЬ: СОЗДАТЕЛЬ
               Row(
                 children: [
-                  // ✅ АВАТАРКА
                   CircleAvatar(
                     radius: 12,
                     backgroundColor: Colors.grey[700],
@@ -123,7 +116,6 @@ class CourseCard extends StatelessWidget {
                         : null,
                   ),
                   const SizedBox(width: 8),
-                  // ✅ ФИО СОЗДАТЕЛЯ
                   Text(
                     creatorName,
                     style: TextStyle(

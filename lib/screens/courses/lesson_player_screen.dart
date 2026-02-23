@@ -40,7 +40,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     ),
   );
 
-  // ✅ ТЕСТЫ
   Map<int, int?> _userAnswers = {};
   bool _quizSubmitted = false;
   int _correctAnswers = 0;
@@ -154,7 +153,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     _loadedLessonId = null;
   }
 
-  // ✅ УДАЛЕНИЕ УРОКА
   Future<void> _deleteLesson() async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -199,14 +197,12 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final isAdmin = auth.isAdmin;
-    // ✅ ДОБАВЛЕНО: ОПРЕДЕЛЕНИЕ ТЕМЫ
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     return Scaffold(
-      // ✅ ИЗМЕНЕНО: ФОН АДАПТИРУЕТСЯ ПОД ТЕМУ
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -414,7 +410,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     );
   }
 
-  // ✅ ИЗМЕНЕНО: ФОН И ТЕКСТ АДАПТИРУЮТСЯ ПОД ТЕМУ
   Widget _buildInfoContent(bool isDark) {
     final content = _lessons[_currentIndex]['content'] ?? '';
 
@@ -950,7 +945,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   }
 }
 
-// ✅ ВИДЕО ПЛЕЕР - ТОЛЬКО НАТИВНЫЕ КОНТРОЛЫ (БЕЗ КАСТОМНЫХ)
 class VideoPlayerWithControls extends StatefulWidget {
   final String videoUrl;
   const VideoPlayerWithControls({super.key, required this.videoUrl});
@@ -1032,7 +1026,6 @@ class _VideoPlayerWithControlsState extends State<VideoPlayerWithControls> {
   }
 }
 
-// ✅ МОДЕЛИ ДЛЯ ТЕСТОВ
 class QuizQuestion {
   String text;
   List<QuizAnswer> answers;

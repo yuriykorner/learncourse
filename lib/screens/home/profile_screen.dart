@@ -26,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final profile = auth.profile;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // ✅ ЦВЕТА ДЛЯ ИКОНОК ТЕМЫ
     final iconColor = isDark ? Colors.grey[400]! : Colors.grey[600]!;
     final selectedColor = isDark ? Colors.white : Colors.black;
     final selectedBackgroundColor =
@@ -43,7 +42,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ✅ АВАТАРКА
             CircleAvatar(
               radius: 50,
               backgroundColor:
@@ -66,7 +64,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   : null,
             ),
             const SizedBox(height: 16),
-            // ✅ ФИО
             Text(
               profile?['full_name'] ?? 'Пользователь',
               style: TextStyle(
@@ -76,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // ✅ EMAIL
             Text(
               user?.email ?? '',
               style: TextStyle(
@@ -84,7 +80,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: isDark ? Colors.grey[400] : Colors.grey[600]),
             ),
             const SizedBox(height: 8),
-            // ✅ РОЛЬ
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -105,18 +100,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            // ✅ МЕНЮ
             Card(
               color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
               child: Column(
                 children: [
-                  // ✅ ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ СНИЗУ ЗАГОЛОВКА
                   Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Заголовок с иконкой
                         Row(
                           children: [
                             Icon(Icons.brightness_6,
@@ -134,7 +126,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // ✅ ПЕРЕКЛЮЧАТЕЛЬ СНИЗУ
                         SegmentedButton<ThemeMode>(
                           segments: [
                             ButtonSegment(
@@ -180,7 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const Divider(height: 1, color: Colors.grey),
-                  // ✅ РЕДАКТИРОВАТЬ ПРОФИЛЬ
                   ListTile(
                     leading: Icon(Icons.edit,
                         color: isDark ? Colors.white : const Color(0xFF1976D2)),
@@ -192,7 +182,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onTap: () => _showEditDialog(auth),
                   ),
                   const Divider(height: 1, color: Colors.grey),
-                  // ✅ ВЫХОД
                   ListTile(
                     leading: const Icon(Icons.logout, color: Colors.red),
                     title: const Text('Выйти',
@@ -215,7 +204,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ✅ ДИАЛОГ РЕДАКТИРОВАНИЯ
   Future<void> _showEditDialog(AuthProvider auth) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -319,7 +307,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // ✅ ЗАГРУЗКА АВАТАРКИ
   Future<String?> _pickAndUploadAvatar() async {
     try {
       final picker = ImagePicker();

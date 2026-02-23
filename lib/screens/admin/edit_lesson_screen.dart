@@ -190,7 +190,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ ДОБАВЛЕНО: ОПРЕДЕЛЕНИЕ ТЕМЫ
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading) {
@@ -201,7 +200,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
     }
 
     return Scaffold(
-      // ✅ ИЗМЕНЕНО: ФОН АДАПТИРУЕТСЯ ПОД ТЕМУ
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
@@ -329,7 +327,6 @@ class _EditLessonScreenState extends State<EditLessonScreen> {
                       const SizedBox(height: 12),
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.5,
-                        // ✅ HTML РЕДАКТОР ВСЕГДА СВЕТЛЫЙ (для toolbar)
                         child: HtmlRichEditor(
                           initialContent: _htmlContent,
                           onContentChanged: (html) {

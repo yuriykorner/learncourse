@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class DatabaseService {
   final supabase = Supabase.instance.client;
 
-  // ========== КУРСЫ ==========
   Future<List<Map<String, dynamic>>> getCourses() async {
     try {
       final response = await supabase
@@ -59,7 +58,6 @@ class DatabaseService {
     }
   }
 
-  // ========== МОДУЛИ ==========
   Future<List<Map<String, dynamic>>> getModules(String courseId) async {
     try {
       final response = await supabase
@@ -90,7 +88,6 @@ class DatabaseService {
     }
   }
 
-  // ========== УРОКИ ==========
   Future<List<Map<String, dynamic>>> getLessons(String moduleId) async {
     try {
       final response = await supabase
@@ -137,7 +134,6 @@ class DatabaseService {
     }
   }
 
-  // ========== ПРОГРЕСС ==========
   Future<bool> markLessonComplete(String lessonId) async {
     try {
       final user = supabase.auth.currentUser;
@@ -172,7 +168,6 @@ class DatabaseService {
     }
   }
 
-  // ========== АДМИН ПРОВЕРКА ==========
   Future<bool> checkIfAdmin() async {
     try {
       final user = supabase.auth.currentUser;
@@ -189,7 +184,6 @@ class DatabaseService {
     }
   }
 
-  // ========== ИЗБРАННОЕ ==========
   Future<bool> addToFavorites(String courseId) async {
     try {
       final user = supabase.auth.currentUser;

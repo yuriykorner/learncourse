@@ -26,7 +26,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
     _loadCourses();
   }
 
-  // ✅ ЗАГРУЗКА КУРСОВ С JOIN PROFILES
   Future<void> _loadCourses() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
@@ -63,7 +62,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
     }
   }
 
-  // ✅ УДАЛЕНИЕ КУРСА
   Future<void> _deleteCourse(BuildContext context, dynamic course) async {
     final courseId = course['id'];
     final courseTitle = course['title'] ?? 'этот курс';
@@ -160,16 +158,13 @@ class _CoursesScreenState extends State<CoursesScreen> {
     );
   }
 
-  // ✅ КАРТОЧКА КУРСА С ТЕНЬЮ ВОКРУГ
   Widget _buildCourseCard(dynamic course, bool isAdmin, bool isDark) {
     final title = course['title']?.toString() ?? 'Без названия';
     final description = course['description']?.toString() ?? '';
 
-    // ✅ ЧТЕНИЕ image_url
     final imageUrl =
         course['image_url'] != null ? course['image_url'].toString() : null;
 
-    // ✅ ЧТЕНИЕ ДАННЫХ АВТОРА ИЗ profiles
     String creatorName = 'Автор курса';
     String? creatorAvatar;
 
@@ -183,7 +178,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
     final courseId = course['id']?.toString() ?? '';
 
-    // ✅ КОНТЕЙНЕР С ТЕНЬЮ ВОКРУГ КАРТОЧКИ
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -214,7 +208,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ✅ КАРТИНКА КУРСА 100x100
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: imageUrl != null && imageUrl.isNotEmpty
@@ -257,7 +250,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // ✅ ROW С НАЗВАНИЕМ И ИКОНКАМИ - ВСЁ ПО ВЕРХУ
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,7 +268,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              // ✅ ИКОНКИ АДМИНА - ВЫРОВНЕНЫ ПО ВЕРХУ
                               if (isAdmin)
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -401,7 +392,6 @@ class _CoursesScreenState extends State<CoursesScreen> {
   }
 }
 
-// ✅ СОЗДАНИЕ КУРСА - ИСПРАВЛЕНА ЗАГРУЗКА КАРТИНКИ
 class _CreateCourseDialog extends StatefulWidget {
   final VoidCallback onCreated;
   const _CreateCourseDialog({required this.onCreated});
@@ -454,14 +444,14 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
           .uploadBinary(fileName, _imageBytes!);
       final publicUrl =
           supabase.storage.from('lesson_images').getPublicUrl(fileName);
-      print('✅ Image uploaded: $publicUrl');
+      print('Image uploaded: $publicUrl');
       if (mounted)
         setState(() {
           _imageUrl = publicUrl;
           _imageBytes = null;
         });
     } catch (e) {
-      print('❌ Upload error: $e');
+      print('Upload error: $e');
       if (mounted)
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Ошибка: $e')));
@@ -486,7 +476,7 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
     final user = supabase.auth.currentUser;
 
     try {
-      print('✅ Creating course with image_url: $_imageUrl');
+      print('Creating course with image_url: $_imageUrl');
 
       await supabase.from('courses').insert({
         'title': _titleController.text,
@@ -502,7 +492,7 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
             .showSnackBar(const SnackBar(content: Text('Курс создан')));
       }
     } catch (e) {
-      print('❌ Create error: $e');
+      print('Create error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));
@@ -603,7 +593,6 @@ class _CreateCourseDialogState extends State<_CreateCourseDialog> {
   }
 }
 
-// ✅ РЕДАКТИРОВАНИЕ КУРСА
 class _EditCourseDialog extends StatefulWidget {
   final dynamic course;
   final VoidCallback onUpdated;
@@ -670,14 +659,14 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
           .uploadBinary(fileName, _imageBytes!);
       final publicUrl =
           supabase.storage.from('lesson_images').getPublicUrl(fileName);
-      print('✅ Image uploaded: $publicUrl');
+      print('Image uploaded: $publicUrl');
       if (mounted)
         setState(() {
           _imageUrl = publicUrl;
           _imageBytes = null;
         });
     } catch (e) {
-      print('❌ Upload error: $e');
+      print('Upload error: $e');
       if (mounted)
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Ошибка: $e')));
@@ -699,7 +688,7 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
     if (!mounted) return;
     setState(() => _isUploading = true);
     try {
-      print('✅ Updating course with image_url: $_imageUrl');
+      print('Updating course with image_url: $_imageUrl');
 
       await supabase.from('courses').update({
         'title': _titleController.text,
@@ -714,7 +703,7 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
             .showSnackBar(const SnackBar(content: Text('Курс обновлён')));
       }
     } catch (e) {
-      print('❌ Update error: $e');
+      print('Update error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red));

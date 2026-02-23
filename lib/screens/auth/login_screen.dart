@@ -70,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ ОПРЕДЕЛЯЕМ ТЕМУ
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -90,13 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 48),
-            // ✅ ЛОГОТИП ПОД ТЕМУ
             Image.asset(
               isDark ? 'assets/icon/logo.png' : 'assets/icon/logo_light.png',
               width: 120,
               height: 120,
               errorBuilder: (context, error, stackTrace) {
-                // ✅ ЕСЛИ ЛОГОТИП НЕ НАЙДЕН - ПОКАЗАТЬ ICON
                 return Icon(
                   Icons.school,
                   size: 80,
@@ -105,12 +102,10 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
             const SizedBox(height: 24),
-            // ✅ НАЗВАНИЕ ПОД ТЕМУ
             Text(
               'LearnCourse',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    // ✅ СИНИЙ В СВЕТЛОЙ, БЕЛЫЙ В ТЁМНОЙ
                     color: isDark ? Colors.white : const Color(0xFF1976D2),
                   ),
               textAlign: TextAlign.center,

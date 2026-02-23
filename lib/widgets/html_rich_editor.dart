@@ -41,9 +41,8 @@ class _HtmlRichEditorState extends State<HtmlRichEditor> {
               darkMode: false,
             ),
             htmlToolbarOptions: HtmlToolbarOptions(
-              // ✅ СТАНДАРТНАЯ НАСТРОЙКА TOOLBAR
               defaultToolbarButtons: const [
-                StyleButtons(), // ✅ ВКЛЮЧАЕТ HEADER (H1, H2, H3, Normal)
+                StyleButtons(),
                 FontButtons(clearAll: false),
                 ColorButtons(),
                 ListButtons(listStyles: false),

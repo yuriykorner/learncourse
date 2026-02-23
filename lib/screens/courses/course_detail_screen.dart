@@ -61,6 +61,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final isAdmin = auth.isAdmin;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     if (_isLoading)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -69,54 +70,65 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
           appBar: AppBar(title: const Text('Курс не найден')),
           body: const Center(child: Text('Курс не найден')));
 
+    final coverImageUrl = _course!['cover_image_url']?.toString() ??
+        _course!['image_url']?.toString();
+
     return Scaffold(
-      appBar: AppBar(title: Text(_course!['title'] ?? 'Курс')),
+      appBar: AppBar(
+        title: Text(_course!['title'] ?? 'Курс'),
+        actions: [
+          if (isAdmin)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => _showEditCourseDialog(context),
+            ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_course!['image_url'] != null &&
-                _course!['image_url'].toString().isNotEmpty)
-              CachedNetworkImage(
-                imageUrl: _course!['image_url'],
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
+            if (coverImageUrl != null && coverImageUrl.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: coverImageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.fitWidth,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                          child: Icon(Icons.broken_image,
+                              size: 50, color: Colors.grey)),
+                    ),
+                  ),
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(_course!['title'] ?? '',
-                                style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 8),
-                            Text(_course!['description'] ?? '',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.grey[600])),
-                          ],
-                        ),
-                      ),
-                      if (isAdmin)
-                        IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showEditCourseDialog(context)),
-                    ],
-                  ),
+                  Text(_course!['description'] ?? '',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white : Colors.black)),
                   const SizedBox(height: 24),
-                  const Text('Модули',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text('Модули',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black)),
                   const SizedBox(height: 16),
                   if (_modules.isEmpty) ...[
                     Card(
+                      color: isDark ? Colors.grey[800] : Colors.white,
                       child: InkWell(
                         onTap: isAdmin
                             ? () => _showCreateModuleDialog(context)
@@ -130,10 +142,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                 width: 50,
                                 height: 50,
                                 decoration: BoxDecoration(
-                                    color: Colors.grey[200],
+                                    color: isDark
+                                        ? Colors.grey[700]
+                                        : Colors.grey[200],
                                     borderRadius: BorderRadius.circular(12)),
-                                child: const Icon(Icons.add,
-                                    color: Colors.grey, size: 28),
+                                child: Icon(Icons.add,
+                                    color:
+                                        isDark ? Colors.grey[400] : Colors.grey,
+                                    size: 28),
                               ),
                               const SizedBox(width: 16),
                               Text(
@@ -141,16 +157,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                       ? 'Добавить первый модуль'
                                       : 'Модулей пока нет',
                                   style: TextStyle(
-                                      fontSize: 16, color: Colors.grey[600])),
+                                      fontSize: 16,
+                                      color: isDark
+                                          ? Colors.grey[400]
+                                          : Colors.grey[600])),
                             ],
                           ),
                         ),
                       ),
                     ),
                   ] else ...[
-                    ..._modules
-                        .map((module) => _buildModuleCard(module, isAdmin)),
-                    if (isAdmin) _buildAddModuleCard(),
+                    ..._modules.map(
+                        (module) => _buildModuleCard(module, isAdmin, isDark)),
+                    if (isAdmin) _buildAddModuleCard(isDark),
                   ],
                 ],
               ),
@@ -161,9 +180,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     );
   }
 
-  Widget _buildModuleCard(dynamic module, bool isAdmin) {
+  Widget _buildModuleCard(dynamic module, bool isAdmin, bool isDark) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: isDark ? Colors.grey[800] : Colors.white,
       child: InkWell(
         onTap: () => context.push('/lesson-player/${module['id']}'),
         borderRadius: BorderRadius.circular(12),
@@ -175,7 +195,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                    color: Colors.grey[800],
+                    color: isDark ? Colors.grey[700] : Colors.grey[800],
                     borderRadius: BorderRadius.circular(12)),
                 child: const Icon(Icons.folder, color: Colors.white, size: 28),
               ),
@@ -185,22 +205,28 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(module['title'] ?? '',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black)),
                     Text('Модуль ${module['order_index'] ?? 0}',
-                        style:
-                            TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                isDark ? Colors.grey[400] : Colors.grey[600])),
                   ],
                 ),
               ),
               if (isAdmin)
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20),
+                  icon: Icon(Icons.edit,
+                      size: 20, color: isDark ? Colors.grey[400] : Colors.grey),
                   onPressed: () => _showEditModuleDialog(context, module),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                 ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
+              Icon(Icons.chevron_right,
+                  color: isDark ? Colors.grey[400] : Colors.grey),
             ],
           ),
         ),
@@ -208,9 +234,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     );
   }
 
-  Widget _buildAddModuleCard() {
+  Widget _buildAddModuleCard(bool isDark) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      color: isDark ? Colors.grey[800] : Colors.white,
       child: InkWell(
         onTap: () => _showCreateModuleDialog(context),
         borderRadius: BorderRadius.circular(12),
@@ -222,13 +249,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                    color: Colors.grey[200],
+                    color: isDark ? Colors.grey[700] : Colors.grey[200],
                     borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.add, color: Colors.grey, size: 28),
+                child: Icon(Icons.add,
+                    color: isDark ? Colors.grey[400] : Colors.grey, size: 28),
               ),
               const SizedBox(width: 16),
-              const Text('Добавить модуль',
-                  style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text('Добавить модуль',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: isDark ? Colors.grey[400] : Colors.grey)),
             ],
           ),
         ),
@@ -329,19 +359,28 @@ class _CreateModuleDialogState extends State<_CreateModuleDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AlertDialog(
-      title: const Text('Создать модуль'),
+      backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+      title: Text('Создать модуль',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black)),
       content: TextField(
           controller: _titleController,
-          decoration: const InputDecoration(
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+          decoration: InputDecoration(
               labelText: 'Название модуля',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.folder)),
+              labelStyle:
+                  TextStyle(color: isDark ? Colors.grey[400] : Colors.grey),
+              border: const OutlineInputBorder(),
+              prefixIcon: Icon(Icons.folder,
+                  color: isDark ? Colors.grey[400] : Colors.grey)),
           maxLines: 2),
       actions: [
         TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена')),
+            child: Text('Отмена',
+                style:
+                    TextStyle(color: isDark ? Colors.grey[400] : Colors.grey))),
         ElevatedButton(
             onPressed: _isUploading ? null : _create,
             child: _isUploading
@@ -408,19 +447,28 @@ class _EditModuleDialogState extends State<_EditModuleDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AlertDialog(
-      title: const Text('Редактировать модуль'),
+      backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+      title: Text('Редактировать модуль',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black)),
       content: TextField(
           controller: _titleController,
-          decoration: const InputDecoration(
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+          decoration: InputDecoration(
               labelText: 'Название модуля',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.folder)),
+              labelStyle:
+                  TextStyle(color: isDark ? Colors.grey[400] : Colors.grey),
+              border: const OutlineInputBorder(),
+              prefixIcon: Icon(Icons.folder,
+                  color: isDark ? Colors.grey[400] : Colors.grey)),
           maxLines: 2),
       actions: [
         TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена')),
+            child: Text('Отмена',
+                style:
+                    TextStyle(color: isDark ? Colors.grey[400] : Colors.grey))),
         ElevatedButton(
             onPressed: _isUploading ? null : _update,
             child: _isUploading
@@ -449,7 +497,9 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
   String? _imageUrl;
+  String? _coverImageUrl;
   Uint8List? _imageBytes;
+  Uint8List? _coverImageBytes;
   bool _isUploading = false;
   bool _isProcessing = false;
 
@@ -461,6 +511,7 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
     _descController =
         TextEditingController(text: widget.course['description'] ?? '');
     _imageUrl = widget.course['image_url'];
+    _coverImageUrl = widget.course['cover_image_url'];
   }
 
   @override
@@ -479,6 +530,24 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
         setState(() {
           _imageBytes = bytes;
           _imageUrl = null;
+        });
+      }
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+  }
+
+  Future<void> _pickCoverImage() async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null && mounted) {
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
+          _coverImageBytes = bytes;
+          _coverImageUrl = null;
         });
       }
     } catch (e) {
@@ -511,6 +580,30 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
     if (mounted) setState(() => _isProcessing = false);
   }
 
+  Future<void> _uploadCoverImage() async {
+    if (_coverImageBytes == null || !mounted) return;
+    setState(() => _isProcessing = true);
+    try {
+      final fileName =
+          'course_cover_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      await supabase.storage
+          .from('lesson_images')
+          .uploadBinary(fileName, _coverImageBytes!);
+      final publicUrl =
+          supabase.storage.from('lesson_images').getPublicUrl(fileName);
+      if (mounted)
+        setState(() {
+          _coverImageUrl = publicUrl;
+          _coverImageBytes = null;
+        });
+    } catch (e) {
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Ошибка: $e')));
+    }
+    if (mounted) setState(() => _isProcessing = false);
+  }
+
   Future<void> _update() async {
     if (_titleController.text.isEmpty) {
       ScaffoldMessenger.of(context)
@@ -520,10 +613,18 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
     if (!mounted) return;
     setState(() => _isUploading = true);
     try {
+      if (_imageBytes != null && _imageUrl == null) {
+        await _uploadImage();
+      }
+      if (_coverImageBytes != null && _coverImageUrl == null) {
+        await _uploadCoverImage();
+      }
+
       await supabase.from('courses').update({
         'title': _titleController.text,
         'description': _descController.text,
         'image_url': _imageUrl,
+        'cover_image_url': _coverImageUrl,
         'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', widget.course['id']);
       if (mounted) {
@@ -541,8 +642,11 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AlertDialog(
-      title: const Text('Редактировать курс'),
+      backgroundColor: isDark ? Colors.grey[800] : Colors.white,
+      title: Text('Редактировать курс',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black)),
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
@@ -550,21 +654,25 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ✅ КНОПКА ВЫБОРА ФОТО
+              Text('Фото для карточки',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black)),
+              const SizedBox(height: 8),
               ElevatedButton.icon(
                 onPressed: _pickImage,
-                icon: const Icon(Icons.add_photo_alternate),
+                icon: Icon(Icons.add_photo_alternate,
+                    color: isDark ? Colors.white : Colors.black),
                 label: Text(_imageUrl != null
                     ? 'Изменить фото'
                     : _imageBytes != null
                         ? 'Фото выбрано'
                         : 'Добавить фото'),
               ),
-              // ✅ ПРЕВЬЮ
               if (_imageUrl != null || _imageBytes != null) ...[
                 const SizedBox(height: 12),
                 AspectRatio(
-                  aspectRatio: 16 / 9,
+                  aspectRatio: 1,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: _imageUrl != null
@@ -582,7 +690,6 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
                         : Image.memory(_imageBytes!, fit: BoxFit.cover),
                   ),
                 ),
-                // ✅ КНОПКА ЗАГРУЗКИ
                 if (_imageBytes != null && _imageUrl == null) ...[
                   const SizedBox(height: 12),
                   ElevatedButton.icon(
@@ -597,20 +704,79 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
                   ),
                 ],
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
+              Text('Обложка для шапки курса',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black)),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: _pickCoverImage,
+                icon: Icon(Icons.image,
+                    color: isDark ? Colors.white : Colors.black),
+                label: Text(_coverImageUrl != null
+                    ? 'Изменить обложку'
+                    : _coverImageBytes != null
+                        ? 'Обложка выбрана'
+                        : 'Добавить обложку'),
+              ),
+              if (_coverImageUrl != null || _coverImageBytes != null) ...[
+                const SizedBox(height: 12),
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: _coverImageUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: _coverImageUrl!,
+                            fit: BoxFit.cover,
+                            placeholder: (c, u) => Container(
+                                color: Colors.grey[300],
+                                child: const Center(
+                                    child: CircularProgressIndicator())),
+                            errorWidget: (c, u, e) => Container(
+                                color: Colors.grey[300],
+                                child: const Center(
+                                    child: Icon(Icons.broken_image))))
+                        : Image.memory(_coverImageBytes!, fit: BoxFit.cover),
+                  ),
+                ),
+                if (_coverImageBytes != null && _coverImageUrl == null) ...[
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: _isProcessing ? null : _uploadCoverImage,
+                    icon: _isProcessing
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.cloud_upload),
+                    label: Text(_isProcessing ? 'Загрузка...' : 'Загрузить'),
+                  ),
+                ],
+              ],
+              const SizedBox(height: 24),
               TextField(
                   controller: _titleController,
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                  decoration: InputDecoration(
                       labelText: 'Название',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.title))),
+                      labelStyle: TextStyle(
+                          color: isDark ? Colors.grey[400] : Colors.grey),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.title,
+                          color: isDark ? Colors.grey[400] : Colors.grey))),
               const SizedBox(height: 16),
               TextField(
                   controller: _descController,
-                  decoration: const InputDecoration(
+                  style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                  decoration: InputDecoration(
                       labelText: 'Описание',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description)),
+                      labelStyle: TextStyle(
+                          color: isDark ? Colors.grey[400] : Colors.grey),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description,
+                          color: isDark ? Colors.grey[400] : Colors.grey)),
                   maxLines: 3),
             ],
           ),
@@ -619,7 +785,9 @@ class _EditCourseDialogState extends State<_EditCourseDialog> {
       actions: [
         TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена')),
+            child: Text('Отмена',
+                style:
+                    TextStyle(color: isDark ? Colors.grey[400] : Colors.grey))),
         ElevatedButton(
             onPressed: (_isUploading || _isProcessing) ? null : _update,
             child: _isUploading

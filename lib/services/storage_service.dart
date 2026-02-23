@@ -32,7 +32,6 @@ class StorageService {
     }
   }
 
-  // ✅ ДОБАВЬТЕ ЭТОТ МЕТОД:
   Future<String?> uploadCourseThumbnail(File image) async {
     try {
       final fileName = 'course_${DateTime.now().millisecondsSinceEpoch}.jpg';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web/web.dart' as web; // ✅ ДЛЯ WEB
+import 'package:web/web.dart' as web;
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
@@ -25,7 +25,6 @@ class ThemeProvider extends ChangeNotifier {
         _themeMode = ThemeMode.system;
       }
 
-      // ✅ СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ WEB
       _saveToLocalStorage(themeString ?? 'system');
 
       notifyListeners();
@@ -36,7 +35,6 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
-  // ✅ СОХРАНЕНИЕ В LOCALSTORAGE (ДЛЯ WEB)
   void _saveToLocalStorage(String theme) {
     try {
       web.window.localStorage.setItem('theme_mode', theme);
@@ -61,7 +59,6 @@ class ThemeProvider extends ChangeNotifier {
 
       await prefs.setString('theme_mode', themeString);
 
-      // ✅ СОХРАНЯЕМ В LOCALSTORAGE ДЛЯ WEB
       _saveToLocalStorage(themeString);
 
       notifyListeners();

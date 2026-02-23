@@ -8,7 +8,6 @@ class HtmlContentViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ ДЛЯ MOBILE/DESKTOP - INAPPWEBVIEW
     if (Platform.isAndroid ||
         Platform.isIOS ||
         Platform.isWindows ||
@@ -52,7 +51,6 @@ class HtmlContentViewer extends StatelessWidget {
         ),
       );
     } else {
-      // ✅ ДЛЯ WEB - ПРОСТОЙ ТЕКСТ
       return _buildPlainText();
     }
   }

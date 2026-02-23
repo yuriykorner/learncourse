@@ -36,11 +36,7 @@ class MyApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: const [Locale('ru', 'RU'), Locale('en', 'US')],
-
-            // ✅ ТЕМА ЗАВИСИТ ОТ PROVIDER
             themeMode: themeProvider.themeMode,
-
-            // ✅ СВЕТЛАЯ ТЕМА
             theme: ThemeData(
               useMaterial3: true,
               colorScheme: ColorScheme.fromSeed(
@@ -63,8 +59,8 @@ class MyApp extends StatelessWidget {
                     fontWeight: FontWeight.bold),
               ),
               cardTheme: CardThemeData(
-                elevation: 2, // ✅ ТЕНЬ ДЛЯ КАРТОЧЕК
-                shadowColor: Colors.black26, // ✅ ЦВЕТ ТЕНИ
+                elevation: 2,
+                shadowColor: Colors.black26,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 color: Colors.white,
@@ -91,14 +87,12 @@ class MyApp extends StatelessWidget {
                 selectedItemColor: Colors.black,
                 unselectedItemColor: Colors.grey,
                 type: BottomNavigationBarType.fixed,
-                elevation: 8, // ✅ ТЕНЬ ДЛЯ NAV BAR
+                elevation: 8,
               ),
               iconTheme: const IconThemeData(
                 color: Colors.black87,
               ),
             ),
-
-            // ✅ ТЁМНАЯ ТЕМА
             darkTheme: ThemeData(
               useMaterial3: true,
               colorScheme: ColorScheme.fromSeed(
@@ -121,8 +115,8 @@ class MyApp extends StatelessWidget {
                     fontWeight: FontWeight.bold),
               ),
               cardTheme: CardThemeData(
-                elevation: 2, // ✅ ТЕНЬ ДЛЯ КАРТОЧЕК
-                shadowColor: Colors.black54, // ✅ ЦВЕТ ТЕНИ
+                elevation: 2,
+                shadowColor: Colors.black54,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
                 color: const Color(0xFF1E1E1E),
@@ -149,7 +143,7 @@ class MyApp extends StatelessWidget {
                 selectedItemColor: Colors.white,
                 unselectedItemColor: Colors.grey,
                 type: BottomNavigationBarType.fixed,
-                elevation: 8, // ✅ ТЕНЬ ДЛЯ NAV BAR
+                elevation: 8,
               ),
               textTheme: const TextTheme(
                 bodyLarge: TextStyle(color: Colors.white),
@@ -164,7 +158,6 @@ class MyApp extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-
             routerConfig: AppRouter.router,
           );
         },

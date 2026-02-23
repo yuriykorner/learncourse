@@ -29,7 +29,6 @@ class _CreateModuleScreenState extends State<CreateModuleScreen> {
     }
     setState(() => _isUploading = true);
     try {
-      // ✅ ПОЛУЧАЕМ МАКСИМАЛЬНЫЙ order_index + 1
       final res = await supabase
           .from('modules')
           .select('order_index')

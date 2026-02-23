@@ -65,7 +65,6 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
 
     final lessonType = _lesson!['lesson_type'] ?? 'info';
 
-    // ✅ ЕСЛИ ТЕСТ - ПЕРЕНАПРАВЛЯЕМ НА ЭКРАН ТЕСТА
     if (lessonType == 'quiz') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.push('/quiz/${widget.lessonId}');
@@ -186,9 +185,7 @@ class _LessonDetailScreenState extends State<LessonDetailScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // ✅ ПЕРЕЙТИ К СЛЕДУЮЩЕМУ УРОКУ
-                      },
+                      onPressed: () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
