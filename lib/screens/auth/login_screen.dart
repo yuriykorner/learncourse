@@ -90,9 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const SizedBox(height: 48),
             Image.asset(
-              isDark ? 'assets/icon/logo.png' : 'assets/icon/logo_light.png',
-              width: 120,
-              height: 120,
+              isDark
+                  ? 'assets/icon/logogifdark.gif'
+                  : 'assets/icon/logogiflight.gif',
+              width: 160,
+              height: 160,
               errorBuilder: (context, error, stackTrace) {
                 return Icon(
                   Icons.school,
@@ -103,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'LearnCourse',
+              'Learn Course',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : const Color(0xFF1976D2),
