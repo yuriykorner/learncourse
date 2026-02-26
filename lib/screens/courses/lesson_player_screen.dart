@@ -14,8 +14,11 @@ import '../../providers/auth_provider.dart';
 class LessonPlayerScreen extends StatefulWidget {
   final String moduleId;
   final String? startLessonId;
-  const LessonPlayerScreen(
-      {super.key, required this.moduleId, this.startLessonId});
+  const LessonPlayerScreen({
+    super.key,
+    required this.moduleId,
+    this.startLessonId,
+  });
 
   @override
   State<LessonPlayerScreen> createState() => _LessonPlayerScreenState();
@@ -27,6 +30,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   int _currentIndex = 0;
   bool _isLoading = true;
   bool _isCompleted = false;
+  bool _moduleCompleted = false;
   final ScrollController _scrollController = ScrollController();
   final ScrollController _lessonsScrollController = ScrollController();
 
@@ -48,6 +52,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   List<QuizQuestion> _quizQuestions = [];
   int _totalQuestions = 0;
   String? _loadedLessonId;
+  bool _isOwner = false;
 
   @override
   void initState() {
@@ -65,30 +70,91 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   Future<void> _loadLessons() async {
     if (!mounted) return;
     setState(() => _isLoading = true);
+
     try {
+      final auth = context.read<AuthProvider>();
+      final userId = auth.user?.id;
+
       final res = await supabase
           .from('lessons')
           .select()
           .eq('module_id', widget.moduleId)
           .order('order_index', ascending: true);
+
+      final moduleRes = await supabase
+          .from('modules')
+          .select('admin_id, course_id, courses!inner(creator_id)')
+          .eq('id', widget.moduleId)
+          .single();
+
+      final moduleAdminId = moduleRes['admin_id']?.toString();
+      final courseCreatorId = moduleRes['courses']['creator_id']?.toString();
+
+      bool moduleCompleted = false;
+      if (userId != null) {
+        final completionRes = await supabase
+            .from('module_completions')
+            .select('completed')
+            .eq('module_id', widget.moduleId)
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        moduleCompleted =
+            completionRes != null && completionRes['completed'] == true;
+      }
+
       if (!mounted) return;
       setState(() {
         _lessons = res as List<dynamic>;
+        _isOwner = userId == moduleAdminId || userId == courseCreatorId;
+        _moduleCompleted = moduleCompleted;
+
         if (widget.startLessonId != null) {
           _currentIndex =
               _lessons.indexWhere((l) => l['id'] == widget.startLessonId);
           if (_currentIndex == -1) _currentIndex = 0;
         }
+
         _isLoading = false;
         _scrollToCurrentLesson();
         _scheduleQuizLoad();
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Ошибка: $e')));
-      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
+      );
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _completeModule() async {
+    if (_moduleCompleted) return;
+
+    try {
+      final auth = context.read<AuthProvider>();
+      final userId = auth.user?.id;
+
+      if (userId == null) return;
+
+      await supabase.from('module_completions').upsert({
+        'module_id': widget.moduleId,
+        'user_id': userId,
+        'completed': true,
+        'completed_at': DateTime.now().toIso8601String(),
+      });
+
+      if (mounted) {
+        setState(() {
+          _moduleCompleted = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -115,31 +181,26 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     });
   }
 
-  void _nextLesson() {
+  void _nextLesson() async {
     if (_currentIndex < _lessons.length - 1) {
       if (!mounted) return;
       setState(() {
         _currentIndex++;
         _isCompleted = false;
         _resetQuizState();
-        _scrollController.animateTo(0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut);
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
         _scrollToCurrentLesson();
         _scheduleQuizLoad();
       });
     } else {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Поздравляем!'),
-          content: const Text('Вы завершили этот модуль.'),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx), child: const Text('OK'))
-          ],
-        ),
-      );
+      await _completeModule();
+
+      if (!mounted) return;
+      context.pop(); // Возврат к курсу
     }
   }
 
@@ -157,6 +218,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1E1E1E)
+            : Colors.white,
         title: const Text('Удалить урок?'),
         content: const Text('Это действие нельзя отменить.'),
         actions: [
@@ -183,8 +247,11 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Урок удалён'), backgroundColor: Colors.green),
+          content: Text('Урок удалён'),
+          backgroundColor: Colors.green,
+        ),
       );
+      _loadLessons();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -199,8 +266,16 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     final isAdmin = auth.isAdmin;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (_isLoading)
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          foregroundColor: isDark ? Colors.white : Colors.black,
+          title: const Text('Загрузка...'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
@@ -214,13 +289,13 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
           style: TextStyle(color: isDark ? Colors.white : Colors.black),
         ),
         actions: [
-          if (isAdmin && _lessons.isNotEmpty)
+          if (_isOwner && _lessons.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: _deleteLesson,
               tooltip: 'Удалить урок',
             ),
-          if (isAdmin && _lessons.isNotEmpty)
+          if (_isOwner && _lessons.isNotEmpty)
             IconButton(
               icon:
                   Icon(Icons.edit, color: isDark ? Colors.white : Colors.black),
@@ -230,7 +305,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                     '/admin/edit-lesson/${_lessons[_currentIndex]['id']}');
               },
             ),
-          if (isAdmin)
+          if (_isOwner)
             IconButton(
               icon:
                   Icon(Icons.add, color: isDark ? Colors.white : Colors.black),
@@ -249,12 +324,13 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                   Icon(Icons.book_outlined, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
-                    isAdmin ? 'Нет уроков в этом модуле' : 'Уроков пока нет',
+                    _isOwner ? 'Нет уроков в этом модуле' : 'Уроков пока нет',
                     style: TextStyle(
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        fontSize: 16),
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      fontSize: 16,
+                    ),
                   ),
-                  if (isAdmin) ...[
+                  if (_isOwner) ...[
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
@@ -277,9 +353,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                     controller: _lessonsScrollController,
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: _lessons.length + (isAdmin ? 1 : 0),
+                    itemCount: _lessons.length + (_isOwner ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (isAdmin && index == _lessons.length) {
+                      if (_isOwner && index == _lessons.length) {
                         return GestureDetector(
                           onTap: () {
                             if (!mounted) return;
@@ -294,12 +370,15 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                                   isDark ? Colors.grey[800] : Colors.grey[300],
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(Icons.add,
-                                color: isDark ? Colors.grey[400] : Colors.grey,
-                                size: 20),
+                            child: Icon(
+                              Icons.add,
+                              color: isDark ? Colors.grey[400] : Colors.grey,
+                              size: 20,
+                            ),
                           ),
                         );
                       }
+
                       final isActive = index == _currentIndex;
                       return GestureDetector(
                         onTap: () {
@@ -320,16 +399,22 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                                     ? Colors.grey[800]
                                     : Colors.grey[300]),
                             borderRadius: BorderRadius.circular(8),
+                            border: isActive
+                                ? Border.all(color: Colors.blue, width: 2)
+                                : null,
                           ),
                           child: Center(
-                            child: Text('${index + 1}',
-                                style: TextStyle(
-                                    color: isActive
-                                        ? (isDark ? Colors.black : Colors.white)
-                                        : (isDark
-                                            ? Colors.white
-                                            : Colors.grey[700]),
-                                    fontWeight: FontWeight.bold)),
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyle(
+                                color: isActive
+                                    ? (isDark ? Colors.black : Colors.white)
+                                    : (isDark
+                                        ? Colors.white
+                                        : Colors.grey[700]),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -337,8 +422,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                   ),
                 ),
                 Divider(
-                    height: 1,
-                    color: isDark ? Colors.grey[800] : Colors.grey[300]),
+                  height: 1,
+                  color: isDark ? Colors.grey[800] : Colors.grey[300],
+                ),
                 Expanded(
                   child: Listener(
                     onPointerSignal: (event) {
@@ -390,13 +476,16 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
                         backgroundColor: (_isCompleted ||
                                 _lessons[_currentIndex]['lesson_type'] !=
                                     'quiz')
-                            ? (isDark ? Colors.grey[300] : Colors.grey[800])
+                            ? Colors.green
                             : Colors.grey[400],
-                        foregroundColor: isDark ? Colors.black : Colors.white,
+                        foregroundColor: Colors.white,
                       ),
-                      child: Text(_currentIndex < _lessons.length - 1
-                          ? 'Дальше'
-                          : 'Завершить'),
+                      child: Text(
+                        _currentIndex < _lessons.length - 1
+                            ? 'Дальше'
+                            : 'Завершить',
+                        style: const TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
                 ),
@@ -411,8 +500,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     if (content.isEmpty || content.trim().isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: Text('Содержимое урока пустое',
-            style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey)),
+        child: Text(
+          'Содержимое урока пустое',
+          style: TextStyle(color: isDark ? Colors.grey[400] : Colors.grey),
+        ),
       );
     }
 
@@ -454,7 +545,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
               'margin': '16px 0 8px 0'
             };
           }
-
           if (tagName == 'p' || tagName == 'div') {
             final textAlign = _getTextAlign(style);
             return {
@@ -463,14 +553,12 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
               'text-align': textAlign,
             };
           }
-
           if (tagName == 'ul' || tagName == 'ol') {
             return {'margin': '16px 0', 'padding-left': '30px'};
           }
           if (tagName == 'li') {
             return {'margin': '8px 0'};
           }
-
           if (tagName == 'img') {
             final src = element.attributes['src'];
             if (src == null || src.isEmpty) {
@@ -503,7 +591,6 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
 
             return styles;
           }
-
           if (tagName == 'video') {
             return {
               'max-width': '100%',
@@ -615,8 +702,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
   Widget _buildQuizContent(bool isDark) {
     if (_quizLoading) {
       return Center(
-          child: CircularProgressIndicator(
-              color: isDark ? Colors.white : Colors.black));
+        child: CircularProgressIndicator(
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      );
     }
 
     if (_quizPassed) {
@@ -629,8 +718,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
 
     if (_quizQuestions.isEmpty) {
       return Center(
-          child: CircularProgressIndicator(
-              color: isDark ? Colors.white : Colors.black));
+        child: CircularProgressIndicator(
+          color: isDark ? Colors.white : Colors.black,
+        ),
+      );
     }
 
     return _buildQuizQuestionsWidget(isDark);
@@ -640,8 +731,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
     if (_quizQuestions.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: Text('Вопросы не найдены',
-            style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+        child: Text(
+          'Вопросы не найдены',
+          style: TextStyle(color: isDark ? Colors.white : Colors.black),
+        ),
       );
     }
 
@@ -652,11 +745,14 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Тест',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : Colors.black)),
+          Text(
+            'Тест',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
           const SizedBox(height: 16),
           ..._quizQuestions.asMap().entries.map((entry) {
             final qIndex = entry.key;
@@ -673,8 +769,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
               backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
               foregroundColor: isDark ? Colors.black : Colors.white,
             ),
-            child: Text('Завершить тест',
-                style: TextStyle(color: isDark ? Colors.black : Colors.white)),
+            child: const Text('Завершить тест'),
           ),
         ],
       ),
@@ -690,13 +785,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       return;
     }
 
-    if (_quizLoading) {
-      return;
-    }
+    if (_quizLoading) return;
 
-    setState(() {
-      _quizLoading = true;
-    });
+    setState(() => _quizLoading = true);
 
     try {
       if (!_quizSubmitted) {
@@ -737,9 +828,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _quizLoading = false;
-      });
+      setState(() => _quizLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Ошибка загрузки теста: $e')),
       );
@@ -757,24 +846,24 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
           Text(
             'Вопрос ${qIndex + 1}: ${question.text}',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white : Colors.black),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.black,
+            ),
           ),
           const SizedBox(height: 12),
           ...question.answers.asMap().entries.map((entry) {
             final aIndex = entry.key;
             final answer = entry.value;
             return RadioListTile<int>(
-              title: Text(answer.text,
-                  style:
-                      TextStyle(color: isDark ? Colors.white : Colors.black)),
+              title: Text(
+                answer.text,
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+              ),
               value: aIndex,
               groupValue: _userAnswers[qIndex],
               onChanged: (value) {
-                setState(() {
-                  _userAnswers[qIndex] = value;
-                });
+                setState(() => _userAnswers[qIndex] = value);
               },
               activeColor: isDark ? Colors.grey[300] : Colors.grey[800],
             );
@@ -834,7 +923,12 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       _correctAnswers = correct;
       _totalQuestions = total;
       _quizPassed = passed;
+      _isCompleted = passed;
     });
+
+    if (passed && _currentIndex >= _lessons.length - 1) {
+      await _completeModule();
+    }
   }
 
   Widget _buildQuizPassedWidget(bool isDark) {
@@ -858,7 +952,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
           Text(
             'Правильных ответов: $_correctAnswers из $_totalQuestions',
             style: TextStyle(
-                fontSize: 16, color: isDark ? Colors.white : Colors.green),
+              fontSize: 16,
+              color: isDark ? Colors.white : Colors.green,
+            ),
           ),
         ],
       ),
@@ -886,7 +982,9 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
           Text(
             'Правильных ответов: $_correctAnswers из $_totalQuestions',
             style: TextStyle(
-                fontSize: 16, color: isDark ? Colors.white : Colors.black),
+              fontSize: 16,
+              color: isDark ? Colors.white : Colors.black,
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
@@ -895,8 +993,7 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
               backgroundColor: isDark ? Colors.grey[300] : Colors.grey[800],
               foregroundColor: isDark ? Colors.black : Colors.white,
             ),
-            child: Text('Пройти заново',
-                style: TextStyle(color: isDark ? Colors.black : Colors.white)),
+            child: const Text('Пройти заново'),
           ),
         ],
       ),
@@ -920,11 +1017,10 @@ class _LessonPlayerScreenState extends State<LessonPlayerScreen> {
       _totalQuestions = 0;
       _loadedLessonId = null;
       _quizLoading = false;
+      _isCompleted = false;
     });
 
-    if (mounted) {
-      _loadQuizQuestionsData();
-    }
+    if (mounted) _loadQuizQuestionsData();
   }
 }
 

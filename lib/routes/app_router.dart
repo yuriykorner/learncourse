@@ -10,6 +10,8 @@ import '../screens/courses/course_detail_screen.dart';
 import '../screens/courses/lesson_player_screen.dart';
 import '../screens/admin/create_lesson_screen.dart';
 import '../screens/admin/edit_lesson_screen.dart';
+import '../screens/admin/test_results_screen.dart';
+import '../screens/admin/course_results_screen.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -35,14 +37,69 @@ class AppRouter {
         },
       ),
       GoRoute(
+          path: '/admin/test-results',
+          builder: (context, state) {
+            final auth = context.read<AuthProvider>();
+            if (!auth.isAdmin) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go('/home');
+                }
+              });
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return const TestResultsScreen();
+          }),
+      GoRoute(
+          path: '/admin/course-results/:courseId',
+          builder: (context, state) {
+            final auth = context.read<AuthProvider>();
+            if (!auth.isAdmin) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go('/home');
+                }
+              });
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+            final courseId = state.pathParameters['courseId']!;
+            return CourseResultsScreen(courseId: courseId);
+          }),
+      GoRoute(
           path: '/admin/create-lesson/:moduleId',
           builder: (context, state) {
+            final auth = context.read<AuthProvider>();
+            if (!auth.isAdmin) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go('/home');
+                }
+              });
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             final moduleId = state.pathParameters['moduleId']!;
             return CreateLessonScreen(moduleId: moduleId);
           }),
       GoRoute(
           path: '/admin/edit-lesson/:lessonId',
           builder: (context, state) {
+            final auth = context.read<AuthProvider>();
+            if (!auth.isAdmin) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go('/home');
+                }
+              });
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
             final lessonId = state.pathParameters['lessonId']!;
             return EditLessonScreen(lessonId: lessonId);
           }),
@@ -51,8 +108,11 @@ class AppRouter {
       final auth = context.read<AuthProvider>();
       final isLoggedIn = auth.isAuthenticated;
       final isLoggingIn = state.matchedLocation == '/login';
+
       if (!isLoggedIn && !isLoggingIn) return '/login';
+
       if (isLoggedIn && isLoggingIn) return '/home';
+
       return null;
     },
   );
@@ -61,7 +121,9 @@ class AppRouter {
 class GoRouterRefreshStream extends ChangeNotifier {
   GoRouterRefreshStream() {
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      notifyListeners();
+      Future.delayed(const Duration(milliseconds: 100), () {
+        notifyListeners();
+      });
     });
   }
 }

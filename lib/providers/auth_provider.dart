@@ -12,6 +12,10 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
 
+  bool get isAdmin {
+    return _profile?['role'] == 'admin';
+  }
+
   AuthProvider() {
     _initAuth();
   }
@@ -47,7 +51,6 @@ class AuthProvider extends ChangeNotifier {
       _profile = res as Map<String, dynamic>?;
       notifyListeners();
     } catch (e) {
-      // ignore: avoid_print
       print('Error loading profile: $e');
     }
   }
@@ -107,6 +110,7 @@ class AuthProvider extends ChangeNotifier {
     await supabase.auth.signOut();
     _user = null;
     _profile = null;
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -119,10 +123,6 @@ class AuthProvider extends ChangeNotifier {
     }).eq('id', _user!.id);
 
     await _loadProfile();
-  }
-
-  bool get isAdmin {
-    return _profile?['role'] == 'admin';
   }
 
   Future<bool> checkAdmin() async {
